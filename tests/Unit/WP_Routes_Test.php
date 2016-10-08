@@ -78,6 +78,7 @@ class WP_RoutesTest extends \PHPUnit_Framework_TestCase {
 			}
 		);
 	}
+
 	/**
 	 * Check that a single route is canonicalized.
 	 *
