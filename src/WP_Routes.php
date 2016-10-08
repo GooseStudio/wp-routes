@@ -57,6 +57,9 @@ class WP_Routes {
 	public static function get_namespace( $path ) {
 		if ( empty( self::$prefix ) ) {
 			$namespace = substr( $path, 0, strpos( $path, '/' ) );
+			if ( empty( $namespace ) ) {
+				throw new \InvalidArgumentException( 'Route does not have a namespace' );
+			}
 
 			return $namespace;
 		} else {

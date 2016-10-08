@@ -3,6 +3,7 @@ namespace GooseStudio\WpRoutes\Tests\Integration;
 
 use ArtOfWP\WP\Testing\WP_UnitTestCase;
 use GooseStudio\WpRoutes\WP_Routes;
+use InvalidArgumentException;
 use WP_REST_Request;
 
 /**
@@ -124,23 +125,19 @@ class WP_Routes_Test  extends WP_UnitTestCase {
 	/**
 	 * Test that we reject routes without namespaces
 	 *
-	 * @expectedIncorrectUsage register_rest_route
+	 * @expectedException InvalidArgumentException
 	 */
 	public function test_route_reject_empty_namespace() {
 		WP_Routes::create( '/test-empty-namespace', '__return_null' );
-		$endpoints = $GLOBALS['wp_rest_server']->get_routes();
-		$this->assertFalse( isset( $endpoints['/test-empty-namespace'] ) );
 	}
 
 	/**
 	 * Test that we reject empty routes
 	 *
-	 * @expectedIncorrectUsage register_rest_route
+	 * @expectedException InvalidArgumentException
 	 */
 	public function test_route_reject_empty_route() {
 		WP_Routes::create( '/test-empty-route', '__return_null' );
-		$endpoints = $GLOBALS['wp_rest_server']->get_routes();
-		$this->assertFalse( isset( $endpoints['/test-empty-route'] ) );
 	}
 
 	public function test_route_method() {

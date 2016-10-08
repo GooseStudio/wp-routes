@@ -1,6 +1,7 @@
 <?php
 namespace GooseStudio\WpRoutes\Tests\Unit;
 
+use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use GooseStudio\WpRoutes\WP_Routes;
 use phpmock\mockery\PHPMockery as f;
 
@@ -90,5 +91,13 @@ class WP_RoutesTest extends \PHPUnit_Framework_TestCase {
 				WP_Routes::create( 'test', '__return_null' );
 			}
 		);
+	}
+
+	/**
+	 * Check that a GET route is correctly called.
+	 * @expectedException InvalidArgumentException
+	 */
+	public function test_route_get_empty_namespace() {
+		WP_Routes::get( 'test', '__return_null' );
 	}
 }
