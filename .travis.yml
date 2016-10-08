@@ -25,7 +25,7 @@ before_install:
   - export WP_DIR=/tmp/wordpress/
   - mkdir -p $WP_DIR
   - git clone https://github.com/WordPress/WordPress.git $WP_DIR
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS wordpress_test;' -uroot
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS wordpress_tests;' -uroot
 
 before_script:
   - phpenv config-rm xdebug.ini

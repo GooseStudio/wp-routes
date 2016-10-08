@@ -1,4 +1,7 @@
 # wp-routes
+[![Build Status](https://travis-ci.org/GooseStudio/wp-routes.svg?branch=master)](https://travis-ci.org/GooseStudio/wp-routes) 
+
+
 
 **Experimental**
 
