@@ -1,0 +1,62 @@
+
+language: php
+services:
+  - mysql
+
+sudo: false
+
+php:
+- 5.3
+- 5.4
+- 5.5
+- 5.6
+- 7
+
+env:
+- WP_VERSION=master WP_MULTISITE=0
+- WP_VERSION=4.5-branch WP_MULTISITE=0
+- WP_VERSION=4.6-branch WP_MULTISITE=0
+
+cache:
+  directories:
+  - vendor
+  - $HOME/.composer/cache
+  - $WP_DIR
+
+before_install:
+  # set up WP install
+  - export WP_DIR =/tmp/wordpress/
+  - mkdir -p $WP_DIR
+  - git clone https://github.com/WordPress/WordPress.git $WP_DIR
+  - mysql -e 'CREATE DATABASE wordpress_test IF DOES NOT EXIST;' -uroot
+
+before_script:
+  - phpenv config-rm xdebug.ini
+  - composer self-update
+  - composer install --no-interaction
+  # set up WP install
+  - cd $WP_DIR
+  - git checkout $WP_VERSION
+  - cd $TRAVIS_BUILD_DIR
+
+script:
+  - |
+    if [[ "$TRAVIS_PHP_VERSION" == "5.6" && "$WP_VERSION" == "master"  ]] ; then
+      phpunit --testunit=integration --coverage-clover=coverage.clover
+    else
+      phpunit --testsuite=unit
+    fi
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+git:
+  depth: 1
+
+branches:
+  only:
+    - master
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change

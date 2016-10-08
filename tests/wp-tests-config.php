@@ -43,6 +43,7 @@ if ( false === $abspath ) {
 		die( 'WordPress not found' );
 	}
 }
+
 defined( 'ABSPATH' ) or define( 'ABSPATH', $abspath );
 defined( 'WP_TESTS_DOMAIN' ) or define( 'WP_TESTS_DOMAIN', 'example.org' );
 defined( 'WP_TESTS_EMAIL' ) or define( 'WP_TESTS_EMAIL', 'admin@example.org' );
@@ -50,6 +51,5 @@ defined( 'WP_TESTS_TITLE' ) or define( 'WP_TESTS_TITLE', 'Test Blog' );
 
 defined( 'WP_PHP_BINARY' ) or define( 'WP_PHP_BINARY', 'php' );
 defined( 'WPLANG' ) or define( 'WPLANG', '' );
-defined( 'WP_CONTENT_DIR' ) or define( 'WP_CONTENT_DIR', ABSPATH );
+defined( 'WP_CONTENT_DIR' ) or define( 'WP_CONTENT_DIR', ABSPATH . '/wp-content' );
 defined( 'WP_CONTENT_URL' ) or define( 'WP_CONTENT_URL', 'http://' . WP_TESTS_DOMAIN . '/wp-content' );
-
