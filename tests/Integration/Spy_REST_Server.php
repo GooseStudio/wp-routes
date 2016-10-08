@@ -13,6 +13,10 @@ class Spy_REST_Server extends WP_REST_Server {
 
 	public $sent_headers = array();
 	public $sent_body = '';
+
+	/**
+	 * @var WP_REST_Request
+	 */
 	public $last_request = null;
 
 	/**

@@ -101,4 +101,72 @@ class WP_RoutesTest extends \PHPUnit_Framework_TestCase {
 	public function test_route_get_empty_namespace() {
 		WP_Routes::get( 'test', '__return_null' );
 	}
+
+	/**
+	 * Check that a single route is canonicalized.
+	 *
+	 * Ensures that single and multiple routes are handled correctly.
+	 */
+	public function test_route_get_with_param() {
+		f::mock( get_ns( WP_Routes::class ), 'register_rest_route' )->withArgs( array(
+			'test-ns',
+			'test/(?P<id>\d+)',
+			array(
+				'methods'  => array( 'GET' ),
+				'callback' => '__return_null',
+			),
+		) )->once();
+		WP_Routes::get( 'test-ns/test/:id', '__return_null', array( 'id' => '\d+' ) );
+	}
+
+	/**
+	 * Check that a single route is canonicalized.
+	 *
+	 * Ensures that single and multiple routes are handled correctly.
+	 */
+	public function test_route_get_with_params() {
+		f::mock( get_ns( WP_Routes::class ), 'register_rest_route' )->withArgs( array(
+			'test-ns',
+			'test/(?P<id>\d+)/bucket/(?P<bucket_id>\d+)',
+			array(
+				'methods'  => array( 'GET' ),
+				'callback' => '__return_null',
+			),
+		) )->once();
+		WP_Routes::get( 'test-ns/test/:id/bucket/:bucket_id', '__return_null', array( 'id' => '\d+', 'bucket_id' => '\d+' ) );
+	}
+
+	/**
+	 * Check that a single route is canonicalized.
+	 *
+	 * Ensures that single and multiple routes are handled correctly.
+	 */
+	public function test_route_put_with_param() {
+		f::mock( get_ns( WP_Routes::class ), 'register_rest_route' )->withArgs( array(
+			'test-ns',
+			'test/(?P<id>\d+)',
+			array(
+				'methods'  => array( 'PUT' ),
+				'callback' => '__return_null',
+			),
+		) )->once();
+		WP_Routes::update( 'test-ns/test/:id', '__return_null', array( 'id' => '\d+' ) );
+	}
+
+	/**
+	 * Check that a single route is canonicalized.
+	 *
+	 * Ensures that single and multiple routes are handled correctly.
+	 */
+	public function test_route_delete_with_param() {
+		f::mock( get_ns( WP_Routes::class ), 'register_rest_route' )->withArgs( array(
+			'test-ns',
+			'test/(?P<id>\d+)',
+			array(
+				'methods'  => array( 'DELETE' ),
+				'callback' => '__return_null',
+			),
+		) )->once();
+		WP_Routes::delete( 'test-ns/test/:id', '__return_null', array( 'id' => '\d+' ) );
+	}
 }

@@ -11,11 +11,12 @@ class WP_Routes {
 	/**
 	 * @param string $path
 	 * @param callback $callback
+	 * @param array $params
 	 */
-	public static function get( $path, $callback ) {
+	public static function get( $path, $callback, $params = array() ) {
 		$namespace = self::get_namespace( $path );
 		$route     = self::get_route( $path );
-		self::register_rest_route( 'GET', $namespace, $route, $callback );
+		self::register_rest_route( 'GET', $namespace, $route, $callback, $params );
 	}
 
 	/**
@@ -31,21 +32,35 @@ class WP_Routes {
 	/**
 	 * @param string $path
 	 * @param callback $callback
+	 * @param array $params
 	 */
-	public static function create( $path, $callback ) {
+	public static function create( $path, $callback, $params = array() ) {
 		$namespace = self::get_namespace( $path );
 		$route     = self::get_route( $path );
-		self::register_rest_route( 'POST', $namespace, $route, $callback );
+		self::register_rest_route( 'POST', $namespace, $route, $callback, $params );
 	}
 
 	/**
 	 * @param string $path
 	 * @param callback $callback
+	 * @param array $params
 	 */
-	public static function update( $path, $callback ) {
+	public static function update( $path, $callback, $params = array() ) {
 		$namespace = self::get_namespace( $path );
 		$route     = self::get_route( $path );
-		self::register_rest_route( 'PUT', $namespace, $route, $callback );
+		self::register_rest_route( 'PUT', $namespace, $route, $callback, $params );
+
+	}
+
+	/**
+	 * @param string $path
+	 * @param callback $callback
+	 * @param array $params
+	 */
+	public static function delete( $path, $callback, $params = array() ) {
+		$namespace = self::get_namespace( $path );
+		$route     = self::get_route( $path );
+		self::register_rest_route( 'DELETE', $namespace, $route, $callback, $params );
 
 	}
 
@@ -74,8 +89,12 @@ class WP_Routes {
 	 * @param string $namespace
 	 * @param string $route
 	 * @param callback $callback
+	 * @param array<string|string> $params
 	 */
-	private static function register_rest_route( $method, $namespace, $route, $callback ) {
+	private static function register_rest_route( $method, $namespace, $route, $callback, $params = array() ) {
+		foreach ( $params as $param => $condition ) {
+			$route = str_replace( ":$param", "(?P<$param>$condition)", $route );
+		}
 		register_rest_route( $namespace, $route, array(
 				'methods'  => array( $method ),
 				'callback' => $callback,

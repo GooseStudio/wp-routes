@@ -10,12 +10,17 @@ use WP_REST_Request;
  * Class WP_Routes_Test
  * @package GooseStudio\WpRoutes\Tests\Integration
  */
-class WP_Routes_Test  extends WP_UnitTestCase {
+class WP_Routes_Test extends WP_UnitTestCase {
+	/**
+	 * @var Spy_REST_Server
+	 */
+	private $server;
+
 	public function setUp() {
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . WPINC . '/rest-api.php';
 		// Override the normal server with our spying server.
-		$GLOBALS['wp_rest_server'] = new Spy_REST_Server();
+		$this->server = $GLOBALS['wp_rest_server'] = new Spy_REST_Server();
 		parent::setUp();
 	}
 
@@ -44,8 +49,8 @@ class WP_Routes_Test  extends WP_UnitTestCase {
 		$endpoint = $filtered_endpoints['/test-ns/test'];
 		$this->assertCount( 1, $endpoint );
 		$this->assertArrayHasKey( 'callback', $endpoint[0] );
-		$this->assertArrayHasKey( 'methods',  $endpoint[0] );
-		$this->assertArrayHasKey( 'args',     $endpoint[0] );
+		$this->assertArrayHasKey( 'methods', $endpoint[0] );
+		$this->assertArrayHasKey( 'args', $endpoint[0] );
 	}
 
 	/**
@@ -72,14 +77,14 @@ class WP_Routes_Test  extends WP_UnitTestCase {
 		$this->assertEquals( 'test-ns', $endpoint['namespace'] );
 
 		$filtered_endpoints = $GLOBALS['wp_rest_server']->get_routes();
-		$endpoint = $filtered_endpoints['/test-ns/test'];
+		$endpoint           = $filtered_endpoints['/test-ns/test'];
 		$this->assertCount( 2, $endpoint );
 
 		// Check for both methods.
 		foreach ( array( 0, 1 ) as $key ) {
 			$this->assertArrayHasKey( 'callback', $endpoint[ $key ] );
-			$this->assertArrayHasKey( 'methods',  $endpoint[ $key ] );
-			$this->assertArrayHasKey( 'args',     $endpoint[ $key ] );
+			$this->assertArrayHasKey( 'methods', $endpoint[ $key ] );
+			$this->assertArrayHasKey( 'args', $endpoint[ $key ] );
 		}
 	}
 
@@ -92,7 +97,7 @@ class WP_Routes_Test  extends WP_UnitTestCase {
 
 		// Check both routes exist.
 		$endpoints = $GLOBALS['wp_rest_server']->get_routes();
-		$endpoint = $endpoints['/test-ns/test'];
+		$endpoint  = $endpoints['/test-ns/test'];
 		$this->assertCount( 2, $endpoint );
 	}
 
@@ -162,6 +167,29 @@ class WP_Routes_Test  extends WP_UnitTestCase {
 	/**
 	 * The 'methods' arg should accept a single value as well as array.
 	 */
+	public function test_route_get_with_param() {
+		WP_Routes::get( 'test-ns/test/:id', '__return_null', array( 'id' => '\d+' ) );
+
+		$routes = $GLOBALS['wp_rest_server']->get_routes();
+		$this->assertArrayHasKey( '/test-ns/test/(?P<id>\d+)', $routes );
+	}
+
+	/**
+	 * The 'methods' arg should accept a single value as well as array.
+	 */
+	public function test_route_get_with_params() {
+		WP_Routes::get( 'test-ns/test/:id/bucket/:bucket_id', '__return_null', array(
+			'id'        => '\d+',
+			'bucket_id' => '\d+',
+		) );
+
+		$routes = $GLOBALS['wp_rest_server']->get_routes();
+		$this->assertArrayHasKey( '/test-ns/test/(?P<id>\d+)/bucket/(?P<bucket_id>\d+)', $routes );
+	}
+
+	/**
+	 * The 'methods' arg should accept a single value as well as array.
+	 */
 	//TODO: Not implemented
 	/*public function test_route_method_array() {
 		register_rest_route( 'test-ns', '/test', array(
@@ -191,10 +219,10 @@ class WP_Routes_Test  extends WP_UnitTestCase {
 
 	public function test_options_request() {
 		WP_Routes::get( 'test-ns/test', '__return_null' );
-		$request = new WP_REST_Request( 'OPTIONS', '/test-ns/test' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/test-ns/test' );
 		$response = rest_handle_options_request( null, $GLOBALS['wp_rest_server'], $request );
 		$response = rest_send_allow_header( $response, $GLOBALS['wp_rest_server'], $request );
-		$headers = $response->get_headers();
+		$headers  = $response->get_headers();
 		$this->assertArrayHasKey( 'Allow', $headers );
 
 		$this->assertEquals( 'GET', $headers['Allow'] );
@@ -206,10 +234,30 @@ class WP_Routes_Test  extends WP_UnitTestCase {
 	public function test_options_request_not_options() {
 		WP_Routes::get( 'test-ns/test', '__return_null' );
 
-		$request = new WP_REST_Request( 'GET', '/test-ns/test' );
+		$request  = new WP_REST_Request( 'GET', '/test-ns/test' );
 		$response = rest_handle_options_request( null, $GLOBALS['wp_rest_server'], $request );
 
 		$this->assertNull( $response );
+	}
+
+	public function test_serve_request_url_param() {
+		WP_Routes::get( 'test-ns/test/:id', '__return_null', array( 'id' => '\d+' ) );
+
+		$this->server->serve_request( '/test-ns/test/1' );
+		$url_params = $this->server->last_request->get_url_params();
+		$this->assertEquals( '1', $url_params['id'] );
+	}
+
+	public function test_serve_request_url_params() {
+		WP_Routes::get( 'test-ns/test/:id/bucket/:bucket_id', '__return_null', array(
+			'id'        => '\d+',
+			'bucket_id' => '\d+',
+		) );
+
+		$this->server->serve_request( '/test-ns/test/1/bucket/2' );
+		$url_params = $this->server->last_request->get_url_params();
+		$this->assertEquals( '1', $url_params['id'] );
+		$this->assertEquals( '2', $url_params['bucket_id'] );
 	}
 
 	public function jsonp_callback_provider() {
