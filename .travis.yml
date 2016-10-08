@@ -28,10 +28,8 @@ before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS wordpress_tests;' -uroot
 
 before_script:
-  - phpenv config-rm xdebug.ini
   - composer self-update
   - composer install --no-interaction
-  - phpenv config-add xdebug.ini
   # set up WP install
   - cd $WP_DIR
   - git checkout $WP_VERSION
