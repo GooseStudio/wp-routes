@@ -1,7 +1,7 @@
 <?php
 namespace GooseStudio\WpRoutes\Tests\Unit;
 
-use Doctrine\Instantiator\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use GooseStudio\WpRoutes\WP_Routes;
 use phpmock\mockery\PHPMockery as f;
 
