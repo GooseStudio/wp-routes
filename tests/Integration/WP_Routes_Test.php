@@ -24,6 +24,13 @@ class WP_Routes_Test extends WP_UnitTestCase {
 		parent::setUp();
 	}
 
+	public function tearDown() {
+		// Remove our temporary spy server
+		$GLOBALS['wp_rest_server'] = null;
+		unset( $_REQUEST['_wpnonce'] );
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Check that a single route is canonicalized.
@@ -185,6 +192,16 @@ class WP_Routes_Test extends WP_UnitTestCase {
 
 		$routes = $GLOBALS['wp_rest_server']->get_routes();
 		$this->assertArrayHasKey( '/test-ns/test/(?P<id>\d+)/bucket/(?P<bucket_id>\d+)', $routes );
+	}
+
+	/**
+	 * The 'methods' arg should accept a single value as well as array.
+	 */
+	public function test_route_create() {
+		WP_Routes::create( 'test-ns/test', function() { return 'created'; } );
+		$request  = new WP_REST_Request( 'POST', '/test-ns/test' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 'created', $response->get_data() );
 	}
 
 	/**
