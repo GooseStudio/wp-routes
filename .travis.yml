@@ -31,6 +31,7 @@ before_script:
   - phpenv config-rm xdebug.ini
   - composer self-update
   - composer install --no-interaction
+  - phpenv config-add xdebug.ini
   # set up WP install
   - cd $WP_DIR
   - git checkout $WP_VERSION
@@ -39,7 +40,7 @@ before_script:
 script:
   - |
     if [[ "$TRAVIS_PHP_VERSION" == "5.6" && "$WP_VERSION" == "master"  ]] ; then
-      phpunit --testsuite=integration --coverage-clover=coverage.clover
+      phpunit --testsuite=integration --coverage-clover=coverage.xml
     else
       phpunit --testsuite=unit
     fi
