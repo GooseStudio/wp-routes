@@ -16,8 +16,15 @@ class WP_Route_Dispatcher {
 		self::$registered = true;
 		$dispatcher = new WP_Route_Dispatcher();
 		add_filter( 'rest_dispatch_request', array( $dispatcher, 'rest_dispatch_request' ), 0, 4 );
+		return $dispatcher;
 	}
 
+	/**
+	 * Register dispatcher
+	 */
+	public static function reset() {
+		self::$registered = false;
+	}
 	/**
 	 * @param string $response
 	 * @param \WP_REST_Request $request
@@ -31,14 +38,14 @@ class WP_Route_Dispatcher {
 			return $response;
 		}
 		$callback = $handler['callback'];
-		if ( is_string( $callback ) ) {
+		if ( is_callable( $callback ) ) {
 			$function = new ReflectionFunction( $callback );
 			$params   = [];
 			if ( $function->getNumberOfRequiredParameters() ) {
 				foreach ( $function->getParameters() as $param ) {
 					if ( isset( $request[ $param->getName() ] ) ) {
 						$params[] = $request[ $param->getName() ];
-					} elseif ( 'WP_REST_Request' === $param->getClass()->getName() ) {
+					} elseif ( $param->getClass() === null || 'WP_REST_Request' === $param->getClass()->getName() ) {
 						$params[] = $request;
 					}
 				}
