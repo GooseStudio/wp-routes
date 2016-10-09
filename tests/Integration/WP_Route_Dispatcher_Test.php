@@ -69,6 +69,43 @@ class WP_Route_Dispatcher_Test extends WP_UnitTestCase {
 		$this->assertEquals( '1 2 1', $response->get_data() );
 	}
 
+	public function test_object_one_param_no_rest_request_type() {
+		$controller = new Controller();
+		WP_Routes::get( 'test-ns/test', array( $controller, 'get' ) );
+		$request  = new WP_REST_Request( 'GET', '/test-ns/test' );
+		$response = $this->server->dispatch( $request );
+	}
+
+	public function test_object_one_param_id() {
+		$controller = new Controller();
+		WP_Routes::get( 'test-ns/test/:id', array( $controller, 'get_one' ), array( 'id' => '\d+' ) );
+		$request  = new WP_REST_Request( 'GET', '/test-ns/test/1' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( '1', $response->get_data() );
+	}
+
+	public function test_object_many_params() {
+		$controller = new Controller();
+		WP_Routes::get( 'test-ns/test/:id/bucket/:bucket_id', array( $controller, 'get_two' ), array(
+			'id'        => '\d+',
+			'bucket_id' => '\d+',
+		) );
+		$request  = new WP_REST_Request( 'GET', '/test-ns/test/1/bucket/2' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( '1 2', $response->get_data() );
+	}
+
+	public function test_object_many_params_and_request() {
+		$controller = new Controller();
+		WP_Routes::get( 'test-ns/test/:id/bucket/:bucket_id', array( $controller, 'get_two_and_request' ), array(
+			'id'        => '\d+',
+			'bucket_id' => '\d+',
+		) );
+		$request  = new WP_REST_Request( 'GET', '/test-ns/test/1/bucket/2' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( '1 2 requested', $response->get_data() );
+	}
+
 	public function tearDown() {
 		parent::tearDown();
 		// Remove our temporary spy server
@@ -76,4 +113,23 @@ class WP_Route_Dispatcher_Test extends WP_UnitTestCase {
 		unset( $_REQUEST['_wpnonce'] );
 		WP_Route_Dispatcher::reset();
 	}
+}
+
+class Controller {
+	public function get( \WP_REST_Request $request ) {
+		return 'request';
+	}
+
+	public function get_one( $id ) {
+		return $id;
+	}
+
+	public function get_two( $id, $bucket_id ) {
+		return $id . ' ' . $bucket_id;
+	}
+
+	public function get_two_and_request( $id, $bucket_id, \WP_REST_Request $request ) {
+		return $id . ' ' . $bucket_id . ' requested';
+	}
+
 }
